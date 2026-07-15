@@ -125,10 +125,12 @@ if (defined('CREATON_TURNSTILE_SECRET') && CREATON_TURNSTILE_SECRET !== '') {
     $ch = curl_init('https://challenges.cloudflare.com/turnstile/v0/siteverify');
     curl_setopt_array($ch, [
         CURLOPT_POST           => true,
+        // NU trimitem remoteip: in spatele Cloudflare, REMOTE_ADDR este IP-ul
+        // edge-ului CF (nu al vizitatorului), iar siteverify respinge tokenul
+        // valid daca remoteip nu se potriveste. secret + response sunt suficiente.
         CURLOPT_POSTFIELDS     => http_build_query([
             'secret'   => CREATON_TURNSTILE_SECRET,
             'response' => $token,
-            'remoteip' => $_SERVER['REMOTE_ADDR'] ?? '',
         ]),
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT        => 5,

@@ -21,7 +21,11 @@ Redirect 301 /acasa1/ https://creaton-acoperisuri-mansardari.ro/
 
 <IfModule mod_headers.c>
   Header always set X-Content-Type-Options "nosniff"
-  Header always set X-Frame-Options "SAMEORIGIN"
+  # Clickjacking protection via CSP frame-ancestors (supersedes X-Frame-Options in
+  # modern browsers). Allows self + Yandex Metrica map domains so the Click / Scroll
+  # / Link maps and Form analysis can display the page in their iframe; every other
+  # origin is still blocked. (X-Frame-Options removed: it cannot allow-list domains.)
+  Header always set Content-Security-Policy "frame-ancestors 'self' https://metrika.yandex.ru https://metrika.yandex.by https://metrica.yandex.com https://metrica.yandex.com.tr https://webvisor.com https://*.webvisor.com"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
   Header always set Strict-Transport-Security "max-age=31536000"

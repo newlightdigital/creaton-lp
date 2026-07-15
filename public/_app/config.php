@@ -6,7 +6,9 @@ const CREATON_VERSION       = '0.01';
 const CREATON_BASE_URL      = 'https://creaton-acoperisuri-mansardari.ro';
 const CREATON_PHONE_E164    = '+40749845759';
 const CREATON_PHONE_DISPLAY = '0749 845 759';
-const CREATON_EMAIL         = 'office@creaton-acoperisuri-mansardari.ro';
+// Lead recipient: To + Reply-To on the lead email. BCC goes to CREATON_LEAD_BCC
+// (config.local.php). Per Daniel: deliver to the client's Gmail, not the server mailbox.
+const CREATON_EMAIL         = 'creatonacoperisurimansardari@gmail.com';
 const CREATON_GTM_ID        = 'GTM-57XHFP55';
 const CREATON_FB_URL        = 'https://www.facebook.com/creatonacoperisurimansardari';
 const CREATON_YT_URL        = 'https://www.youtube.com/@CREATON-ACOPERISURI-MANSARDARI';

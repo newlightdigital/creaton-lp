@@ -1,0 +1,43 @@
+# Creaton LP pack
+
+Options -Indexes
+
+RewriteEngine On
+
+# HTTPS + non-www canonical (Cloudflare face si el redirect, dar pastram fallback-ul)
+RewriteCond %{HTTP_HOST} ^www\. [NC]
+RewriteRule ^ https://creaton-acoperisuri-mansardari.ro%{REQUEST_URI} [L,R=301]
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteRule ^ https://creaton-acoperisuri-mansardari.ro%{REQUEST_URI} [L,R=301]
+
+# 301: URL-urile vechiului site WordPress
+Redirect 301 /thank-you-page/ https://creaton-acoperisuri-mansardari.ro/multumim/
+Redirect 301 /despre-noi/ https://creaton-acoperisuri-mansardari.ro/
+Redirect 301 /servicii/ https://creaton-acoperisuri-mansardari.ro/
+Redirect 301 /proiecte/ https://creaton-acoperisuri-mansardari.ro/
+Redirect 301 /contact/ https://creaton-acoperisuri-mansardari.ro/
+Redirect 301 /acasa1/ https://creaton-acoperisuri-mansardari.ro/
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  Header always set Strict-Transport-Security "max-age=31536000"
+</IfModule>
+
+# Cache: asset-ele au cache-busting prin ?v=, deci pot fi imutabile
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+</IfModule>
+<IfModule mod_headers.c>
+  <FilesMatch "\.(woff2|webp|svg|png|jpe?g)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>

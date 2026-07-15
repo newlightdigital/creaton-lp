@@ -29,6 +29,22 @@ $lucrari = [
     'Hidroizolații și terase',
     'Altă lucrare',
 ];
+
+// ---- Social proof (Google rating): reused in the hero badge + testimonials ----
+$star_svg = '<svg viewBox="0 0 24 24" fill="#F5972A" aria-hidden="true"><path d="M12 2 15.09 8.26 22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg>';
+$stars5   = str_repeat($star_svg, 5);
+$google_g = '<svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.11c4.16-3.83 6.56-9.47 6.56-16.17z"/><path fill="#34A853" d="M24 46c5.94 0 10.92-1.97 14.56-5.33l-7.11-5.52c-1.97 1.32-4.49 2.1-7.45 2.1-5.73 0-10.58-3.87-12.31-9.07H4.34v5.7C7.96 41.07 15.4 46 24 46z"/><path fill="#FBBC05" d="M11.69 28.18C11.25 26.86 11 25.45 11 24s.25-2.86.69-4.18v-5.7H4.34C2.85 17.09 2 20.45 2 24s.85 6.91 2.34 9.88l7.35-5.7z"/><path fill="#EA4335" d="M24 10.75c3.23 0 6.13 1.11 8.41 3.29l6.31-6.31C34.91 4.18 29.93 2 24 2 15.4 2 7.96 6.93 4.34 14.12l7.35 5.7c1.73-5.2 6.58-9.07 12.31-9.07z"/></svg>';
+
+// Rating badge wrapper: a link when a Google reviews URL is configured, else a div.
+function creaton_rating_open(string $class): string {
+    $u = defined('CREATON_REVIEW_URL') ? CREATON_REVIEW_URL : '';
+    return $u !== ''
+        ? '<a class="' . $class . '" href="' . e($u) . '" target="_blank" rel="noopener">'
+        : '<div class="' . $class . '">';
+}
+function creaton_rating_close(): string {
+    return (defined('CREATON_REVIEW_URL') && CREATON_REVIEW_URL !== '') ? '</a>' : '</div>';
+}
 ?>
 <!DOCTYPE html>
 <html lang="ro">
@@ -121,6 +137,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       </span>
       <h1><?= $page['h1'] ?></h1>
       <p class="hero-sub"><?= $page['hero_sub'] ?></p>
+      <?= creaton_rating_open('g-rating') ?>
+        <?= $google_g ?>
+        <span class="g-stars"><?= $stars5 ?></span>
+        <span class="g-score"><?= e(CREATON_REVIEW_SCORE) ?></span>
+        <span class="g-meta"><b><?= (int) CREATON_REVIEW_COUNT ?></b> de recenzii pe Google</span>
+      <?= creaton_rating_close() ?>
       <div class="hero-chips">
         <span class="chip"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F5972A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Deplasare și deviz gratuit</span>
         <span class="chip"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F5972A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Garanție la manoperă</span>
@@ -361,6 +383,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       <span class="eyebrow"><svg width="16" height="10" viewBox="0 0 16 10" fill="none"><path d="M1 9 L8 2 L15 9" stroke="#F5972A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Recenzii</span>
       <h2>Ce spun clienții noștri</h2>
     </div>
+    <?= creaton_rating_open('g-review-summary reveal') ?>
+      <?= $google_g ?>
+      <div class="g-rs-body">
+        <div class="g-rs-top"><span class="g-rs-score"><?= e(CREATON_REVIEW_SCORE) ?></span><span class="g-stars"><?= $stars5 ?></span></div>
+        <div class="g-rs-meta">din <b><?= (int) CREATON_REVIEW_COUNT ?> de recenzii</b> pe Google</div>
+      </div>
+      <?php if (CREATON_REVIEW_URL !== '') : ?><span class="g-rs-link">Citiți recenziile</span><?php endif; ?>
+    <?= creaton_rating_close() ?>
     <div class="rev-grid reveal">
       <div class="rev-card">
         <div class="stars" aria-label="5 din 5 stele">

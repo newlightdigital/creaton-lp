@@ -11,6 +11,13 @@ const CREATON_GTM_ID        = 'GTM-57XHFP55';
 const CREATON_FB_URL        = 'https://www.facebook.com/creatonacoperisurimansardari';
 const CREATON_YT_URL        = 'https://www.youtube.com/@CREATON-ACOPERISURI-MANSARDARI';
 
+// Social proof: Google rating shown on the LP (hero badge + testimonials summary).
+// Bump the count as reviews grow. CREATON_REVIEW_URL is optional: paste the Google
+// Business Profile reviews link and both badges become clickable (open in new tab).
+const CREATON_REVIEW_SCORE  = '5,0';
+const CREATON_REVIEW_COUNT  = 48;
+const CREATON_REVIEW_URL    = '';
+
 // Cloudflare Turnstile site key (public). Empty = widget off; honeypot still active.
 // Shared "wp-clients-1" widget (Daniel's CF account); creaton hostname added to it.
 // Secret pairs with this in config.local.php on the server.

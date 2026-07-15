@@ -231,6 +231,30 @@ h1,h2,h3,h4{font-family:'Archivo',system-ui,sans-serif;color:var(--ink);margin:0
 .rev-who strong{display:block;font-family:'Archivo',sans-serif;font-size:.98rem}
 .rev-who span{font-size:.84rem;color:var(--muted)}
 
+/* ---------- Google rating (social proof) ---------- */
+.g-stars{display:inline-flex;gap:2px;align-items:center}
+/* Hero badge (on dark) */
+.g-rating{display:inline-flex;align-items:center;gap:11px;flex-wrap:wrap;margin:0 0 28px;padding:10px 16px;background:rgba(255,255,255,.05);border:1px solid var(--white-line);border-radius:100px}
+.g-rating .g-logo{width:19px;height:19px;flex:none}
+.g-rating .g-stars svg{width:16px;height:16px;display:block}
+.g-rating .g-score{font-family:'Archivo',sans-serif;font-weight:800;color:#fff;font-size:1rem;line-height:1}
+.g-rating .g-meta{font-size:.88rem;color:#B9C4CA}
+.g-rating .g-meta b{color:#fff;font-weight:700}
+a.g-rating{transition:background .18s ease,border-color .18s ease}
+a.g-rating:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.42)}
+/* Testimonials summary (on light) */
+.g-review-summary{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;width:max-content;max-width:100%;margin:0 auto 42px;padding:16px 30px;background:#fff;border:1px solid var(--line);border-radius:100px;box-shadow:var(--shadow-sm)}
+.g-review-summary .g-logo{width:32px;height:32px;flex:none}
+.g-rs-top{display:flex;align-items:center;gap:10px}
+.g-rs-score{font-family:'Archivo',sans-serif;font-weight:800;font-size:1.65rem;color:var(--ink);line-height:1}
+.g-review-summary .g-stars svg{width:20px;height:20px;display:block}
+.g-rs-meta{font-size:.9rem;color:var(--ink-2);margin-top:3px}
+.g-rs-meta b{color:var(--ink);font-weight:700}
+.g-rs-link{font-weight:700;color:var(--amber-2);font-size:.9rem;white-space:nowrap}
+.g-rs-link::after{content:" \2192"}
+a.g-review-summary{transition:box-shadow .18s ease,border-color .18s ease,transform .18s ease}
+a.g-review-summary:hover{box-shadow:var(--shadow-md);border-color:var(--line-2);transform:translateY(-2px)}
+
 /* ---------- Area ---------- */
 .area{background:var(--graphite);color:#E7EDEF}
 .area-inner{display:grid;grid-template-columns:1.1fr .9fr;gap:44px;align-items:center;padding:clamp(48px,7vw,76px) 0}

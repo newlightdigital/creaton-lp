@@ -12,8 +12,9 @@ const CREATON_FB_URL        = 'https://www.facebook.com/creatonacoperisurimansar
 const CREATON_YT_URL        = 'https://www.youtube.com/@CREATON-ACOPERISURI-MANSARDARI';
 
 // Cloudflare Turnstile site key (public). Empty = widget off; honeypot still active.
-// Widget "creaton-lp-forms" in Daniel's CF account, domains: production + localhost.
-const CREATON_TURNSTILE_SITEKEY = '0x4AAAAAAD2YterhN7ToUT8n';
+// Shared "wp-clients-1" widget (Daniel's CF account); creaton hostname added to it.
+// Secret pairs with this in config.local.php on the server.
+const CREATON_TURNSTILE_SITEKEY = '0x4AAAAAAB45dpkzkrOnY6kZ';
 
 $creaton_local = __DIR__ . '/config.local.php';
 if (is_file($creaton_local)) {

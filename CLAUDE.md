@@ -133,5 +133,18 @@ variant (currently ads point to / and /contact/).
 - [x] Ad group final URLs SWITCHED to variants 2026-07-15 (5 enabled RSAs in the
       live RO Vest campaign, via Ads API; verified). montaj->/montaj-acoperis/,
       reparatii+infiltratii+tabla->/reparatii-acoperis/, refacere->/inlocuire-acoperis/.
+- [x] Email deliverability fixed 2026-07-15 (a lead email hit spam). Root causes:
+      DKIM SIGNING was inactive on the server AND no DKIM/DMARC records in DNS.
+      Fix: cPanel auto-enabled DKIM signing; published DKIM (default._domainkey)
+      + DMARC (_dmarc, p=none, rua=daniel@) TXT records to Cloudflare via API.
+      cPanel now reports SPF+DKIM+DMARC all VALID. DNS on Cloudflare zone
+      ecc091cb2a838cee8851fc51f253cac3.
+- [ ] KNOWN LIMITATION: reverse-DNS / HELO mismatch. The mail server sends HELO
+      "creaton-acoperisuri-mansardari.ro", which (being Cloudflare-proxied) A-
+      resolves to Cloudflare IPs, not the mail IP 85.120.222.229. Can't fix from
+      cPanel (needs NAV/WHM to set a mail HELO hostname with matching fwd/rev DNS,
+      or an unproxied mail.* host). Low impact now that SPF/DKIM/DMARC pass; only
+      revisit if spam persists after reputation builds. Dedicated IP 85.120.222.229
+      PTR already = the domain.
 - [ ] After launch: server-side Google Ads conversion uploads playbook, using
       the gclid values from `/home/creatona/leads/*.jsonl`.

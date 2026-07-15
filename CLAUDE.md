@@ -123,6 +123,35 @@ variant (currently ads point to / and /contact/).
       GTM-57XHFP55 under the daniel@newlightdigital.com Google login). "Thank you
       page" trigger now fires on Page URL /multumim/; GA4 generate_lead + Google
       Ads lead conversion restored.
+- [x] PHONE-SWAP call tracking FIXED + PUBLISHED 2026-07-15 (Version 30). The
+      "Phone Swap - Calls from Website" tag (Google Ads Calls from Website
+      Conversion, conv ID 11262294860 / label wqk5CMH5h8scEMz2o_op) had its
+      "Displayed Phone Number to Replace" set to the OLD visible format
+      `+40 (749) 845 759`. The rebuild changed the visible number to
+      `0749 845 759`, so Google's number swap no longer matched anything and
+      silently no-oped (Daniel spotted it). Fix: set the field to `0749 845 759`
+      to match the on-page text. Verified live in gtm.js
+      (`vtp_phoneConversionNumber":"0749 845 759"`). LESSON: any time the visible
+      phone format on the site changes, update this tag's "Displayed Phone Number
+      to Replace" to match EXACTLY (Google matches on-page text). tel:-only CTAs
+      ("Sunați acum" buttons, no visible digits) are not swap-eligible but are
+      already tracked by the separate "Click to call - Google Ads" conversion.
+- [x] BOT/CLICK-FRAUD PROTECTION (2026-07-15). Two layers, both already live:
+      (1) Cloudflare "Bot Fight Mode" is ON at the edge (zone bot_management:
+      `fight_mode:true`, `enable_js:true`) = the ACTIVE bot blocking (challenge/
+      block before origin). (2) ClickCease detection runs via GTM: Custom HTML tag
+      "ClickCease Tag" = `<script async src='https://ob.esnbranding.com/i/
+      9726c93862c5b4428f5cf40627e028ee.js' class='ct_clicktrue'>` + Custom Image
+      noscript fallback (`/ns/<same-hash>.html`), both fire on "ClickCease
+      PageViews Trigger" + Initialization. Went live when Version 30 shipped (a GTM
+      version is a full snapshot). IMPORTANT: ClickCease's active "Bot Zapping"
+      (403-blocking) is a WORDPRESS PLUGIN ONLY; non-WP/custom sites get DETECTION
+      DATA only. So do NOT try to install ClickCease active blocking here - that job
+      is already done by Cloudflare Bot Fight Mode. ClickCease's role here is purely
+      ad click-fraud detection -> auto IP exclusion in Google Ads. PENDING (Daniel,
+      dashboard only, no API access): in the ClickCease dashboard confirm the domain
+      shows detected/green and connect the Google Ads account (3218774193) so the
+      fraud IP-exclusions actually push to the campaigns.
 - [ ] PERF: mobile PageSpeed 69, LCP ~9.6s. Remaining weight = client GTM stack
       (GA4 + Ads + Yandex Metrika, ~540KB). To reach 90+, load GTM on first
       interaction — needs Daniel's OK (changes measurement). gclid captured

@@ -20,8 +20,17 @@ build pipeline, or any framework.
   latin-ext subsets only (latin-ext carries Romanian diacritics). No Google
   Fonts CDN, no icon fonts (icons are inline SVG).
 - Forms POST to `public/form-handler.php`: honeypot, validation, optional
-  Turnstile verify (fail-open), email via mail() to office@, JSONL lead log in
-  `/leads/` (outside webroot, gitignored), then 303 redirect to `/multumim/`.
+  Turnstile verify (fail-open), lead logged to JSONL in `/leads/` FIRST (source
+  of truth, outside webroot), then email, then 303 redirect to `/multumim/`.
+  IMPORTANT: `mail()` is DISABLED on the NAV host. The handler sends via a
+  built-in dependency-free SMTP client to Exim on 127.0.0.1:25 (no auth: local
+  submission/relay is trusted). office@ delivered locally, BCC to daniel@
+  relayed out. Verified live via Track Delivery (all "Accepted"). Everything in
+  the mail path is wrapped so a failure can never 500 or lose a lead.
+- Turnstile is LAZY-LOADED (injected on first form focus/submit), not eager;
+  eager loading made it the LCP element (~400KB challenge JS) and tanked mobile
+  PageSpeed. Server-side Turnstile verify is OFF until the secret is added to
+  config.local.php on the server (honeypot active meanwhile).
 - Conversion flow: GTM (GTM-57XHFP55) fires on the `generate_lead` dataLayer
   event pushed on `/multumim/`. Click-to-call is tracked in GTM via tel: link
   click triggers. gclid/gbraid/wbraid are persisted in localStorage for 90 days
@@ -55,12 +64,27 @@ variant (currently ads point to / and /contact/).
 
 ## Environment and deploy
 
-- Hosting: NAV Communications shared cPanel ("WP Silver" plan), DNS/proxy on
-  Cloudflare. Old WordPress site still live until this replaces it.
-- Deploy root mapping: `public/` maps to `public_html/` on the server. The
-  `/leads/` dir is created next to it (one level above webroot).
-- GitHub is the source of truth; deploy is a deliberate separate step (cPanel
-  Git or rsync). Never edit the server directly.
+- Hosting: NAV Communications shared cPanel (acct `creatona`, home
+  /home/creatona, server cp04.server.ro, dedicated IP 85.120.222.229, PHP
+  8.2.31, LiteSpeed). NO shell access, NO MultiPHP INI editor on this plan.
+  DNS/proxy on Cloudflare (zone ecc091cb2a838cee8851fc51f253cac3).
+- LIVE as of 2026-07-15: the new static site replaced WordPress. Old WP files
+  moved to `/home/creatona/old-wp-files/`, plus a full backup tarball
+  `/home/creatona/backup-oldsite-2026-07-15.tar.gz` (780MB) and DB export
+  `~/Downloads/creatona_wp344.sql` (local). Old WP DB `creatona_wp344` still
+  intact in MySQL.
+- Source of truth: private GitHub repo `newlightdigital/creaton-lp` (main).
+  config.local.php is gitignored (secret stays server-side only).
+- DEPLOY MECHANISM (no shell): cPanel Git Version Control. A clone lives at
+  `/home/creatona/repositories/creaton-lp2`. To ship: commit+push, set the
+  repo public briefly, in cPanel Git VC "Manage > Pull or Deploy > Update from
+  Remote", then File Manager-copy the changed file(s) from
+  `repositories/creaton-lp2/public/...` into `public_html/...`, then set the
+  repo private again. (cPanel can't clone/pull the private repo without a token,
+  hence the brief public flip. Do NOT leave a PAT on the shared server.)
+- `public/` maps to `public_html/`. Deploy root has `.htaccess` 301s + security
+  headers; `_app/` is `Require all denied` (verified 403). Never edit the server
+  by hand except config.local.php (secret) which is not in git.
 - Local preview: LocalWP's bundled PHP via `.claude/launch.json`
   (php -S 127.0.0.1:8737 -t public). PHP is NOT on PATH; binary:
   `~/Library/Application Support/Local/lightning-services/php-8.3.30+1/bin/darwin-arm64/bin/php`
@@ -76,24 +100,29 @@ variant (currently ads point to / and /contact/).
 - Performance target: PageSpeed 90+ mobile (static stack makes this realistic).
   Verify with the PSI API key from ~/.claude/CLAUDE.md after deploys.
 
-## Launch checklist (pending)
+## Launch checklist
 
-- [x] Real photos: 50 downloaded from the client's Drive folder, best 4 picked
-      and wired into the Lucrari cards as 800x600 WebP (+ og-creaton.jpg
-      1200x630). Originals cached in the session scratchpad; Drive folder link
-      in the 2026-07-15 chat if more are needed.
-- [x] Cloudflare Turnstile: widget "creaton-lp-forms" created via API in
-      Daniel's CF account (domains: production + localhost). Sitekey in
-      config.php; secret in local config.local.php, RECREATE config.local.php
-      ON THE SERVER at deploy (never commit it).
-- [ ] Update the GTM conversion trigger from /thank-you-page/ to /multumim/
-      (old WP thank-you URL 301s here). This also fixes the broken conversion
-      tracking on the RO Vest campaign (see KNOWN ISSUE above).
-- [x] Legal name: trade name "Creaton Acoperisuri Mansardari" per Daniel
-      2026-07-15 (no SRL/CUI available); already what /confidentialitate/ uses.
+- [x] DEPLOYED LIVE 2026-07-15. Old WP backed up (old-wp-files + tarball + DB
+      export), new static site in public_html, Cloudflare purged, all pages 200,
+      301s live, form pipeline verified end-to-end (303 -> /multumim/,
+      generate_lead fired, email Accepted via Track Delivery, JSONL logged).
+- [x] Real photos: 50 from Drive, best 4 in the Lucrari cards as 800x600 WebP
+      (+ og-creaton.jpg). Drive link in the 2026-07-15 chat if more are needed.
+- [x] Cloudflare Turnstile widget "creaton-lp-forms" created; sitekey in
+      config.php; LAZY-loaded on the LP. Secret NOT yet on server.
+- [ ] Turnstile secret: Daniel to paste `CREATON_TURNSTILE_SECRET` into
+      public_html/_app/config.local.php (server) to enable server-side spam
+      verify (honeypot active until then). File already has a commented slot.
+- [ ] Update the GTM conversion trigger from /thank-you-page/ to /multumim/ (in
+      the GTM UI). Fixes the broken RO Vest conversion tracking (see KNOWN ISSUE).
+- [ ] PERF: mobile PageSpeed 69, LCP ~9.6s. Remaining weight = client GTM stack
+      (GA4 + Ads + Yandex Metrika, ~540KB). To reach 90+, load GTM on first
+      interaction — needs Daniel's OK (changes measurement). gclid captured
+      independently in localStorage, so deferring GTM does not hurt attribution.
+- [x] Legal name: trade name only, per Daniel (no SRL/CUI); it's what
+      /confidentialitate/ uses.
 - [x] Ad group variants built from live spend data (see LP variants above).
-- [ ] After deploy + Daniel's go: switch each ad group's final URL to its
-      variant (Ads API mutation, needs explicit approval).
-- [ ] After launch: server-side Google Ads conversion uploads playbook
-      (~/.claude/playbooks/google-ads-server-side-conversions.md), using the
-      gclid values from the leads log.
+- [ ] After Daniel's go: switch each ad group's final URL to its variant (Ads
+      API mutation, needs explicit approval). Ads currently point to / and /contact/.
+- [ ] After launch: server-side Google Ads conversion uploads playbook, using
+      the gclid values from `/home/creatona/leads/*.jsonl`.

@@ -16,6 +16,70 @@ function creaton_back(string $qs = 'err=1'): void
     exit;
 }
 
+// Trimite mailul direct prin serverul SMTP local (Exim pe 127.0.0.1:25). Necesar
+// pentru ca mail() este dezactivat pe acest hosting. Fara autentificare: livrarea
+// locala si releul de pe localhost sunt permise pentru scripturile de pe server.
+function creaton_smtp_send(string $envelope_from, array $rcpts, string $from_header, string $to_header, string $subject, string $body): bool
+{
+    $port = defined('CREATON_SMTP_PORT') ? (int) CREATON_SMTP_PORT : 25;
+    $fp = @fsockopen('127.0.0.1', $port, $errno, $errstr, 8);
+    if (!$fp) {
+        return false;
+    }
+    stream_set_timeout($fp, 8);
+    $get = function () use ($fp) {
+        $data = '';
+        while (($line = fgets($fp, 515)) !== false) {
+            $data .= $line;
+            if (strlen($line) < 4 || $line[3] === ' ') {
+                break;
+            }
+        }
+        return $data;
+    };
+    $put = function (string $cmd) use ($fp, $get) {
+        fwrite($fp, $cmd . "\r\n");
+        return $get();
+    };
+    $ok = function (string $resp, string $code) {
+        return strncmp($resp, $code, 3) === 0;
+    };
+    $done = false;
+    try {
+        if ($ok($get(), '220')) {
+            $ehlo_host = $_SERVER['SERVER_NAME'] ?? 'localhost';
+            if (!$ok($put('EHLO ' . $ehlo_host), '250')) {
+                $put('HELO ' . $ehlo_host);
+            }
+            if ($ok($put('MAIL FROM:<' . $envelope_from . '>'), '250')) {
+                $all_rcpt = true;
+                foreach ($rcpts as $r) {
+                    if (!$ok($put('RCPT TO:<' . $r . '>'), '250')) {
+                        $all_rcpt = false;
+                        break;
+                    }
+                }
+                if ($all_rcpt && $ok($put('DATA'), '354')) {
+                    $msg = 'From: ' . $from_header . "\r\n"
+                         . 'To: ' . $to_header . "\r\n"
+                         . 'Subject: ' . $subject . "\r\n"
+                         . "MIME-Version: 1.0\r\n"
+                         . "Content-Type: text/plain; charset=UTF-8\r\n"
+                         . "\r\n"
+                         . $body;
+                    $msg  = preg_replace('/^\./m', '..', $msg); // dot-stuffing
+                    $done = $ok($put($msg . "\r\n."), '250');
+                }
+            }
+        }
+        $put('QUIT');
+    } catch (\Throwable $e) {
+        $done = false;
+    }
+    fclose($fp);
+    return $done;
+}
+
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     header('Location: /', true, 303);
     exit;
@@ -113,16 +177,29 @@ try {
         $lines[] = strtoupper($k) . ':    ' . $v;
     }
     $body    = implode("\r\n", $lines) . "\r\n";
-    $headers = 'From: Creaton Website <no-reply@' . $host . ">\r\n"
-             . 'Reply-To: ' . CREATON_EMAIL . "\r\n"
-             . "Content-Type: text/plain; charset=UTF-8\r\n";
-    if (defined('CREATON_LEAD_BCC') && CREATON_LEAD_BCC !== '') {
-        $headers .= 'Bcc: ' . CREATON_LEAD_BCC . "\r\n";
-    }
     $subject = '=?UTF-8?B?' . base64_encode('Lead nou: ' . $nume . ' - ' . ($lucrare !== '' ? $lucrare : 'solicitare oferta')) . '?=';
 
+    $envelope_from = 'no-reply@' . $host;
+    $from_header   = 'Creaton Website <' . $envelope_from . '>';
+    $rcpts         = [CREATON_EMAIL];
+    if (defined('CREATON_LEAD_BCC') && CREATON_LEAD_BCC !== '') {
+        $rcpts[] = CREATON_LEAD_BCC;
+    }
+
+    // mail() intai (daca hosting-ul il are activat), altfel SMTP local (Exim).
+    $sent = false;
     if (function_exists('mail')) {
-        @mail(CREATON_EMAIL, $subject, $body, $headers);
+        $headers = 'From: ' . $from_header . "\r\n"
+                 . 'Reply-To: ' . CREATON_EMAIL . "\r\n"
+                 . "MIME-Version: 1.0\r\n"
+                 . "Content-Type: text/plain; charset=UTF-8\r\n";
+        if (defined('CREATON_LEAD_BCC') && CREATON_LEAD_BCC !== '') {
+            $headers .= 'Bcc: ' . CREATON_LEAD_BCC . "\r\n";
+        }
+        $sent = @mail(CREATON_EMAIL, $subject, $body, $headers);
+    }
+    if (!$sent) {
+        creaton_smtp_send($envelope_from, $rcpts, $from_header, CREATON_EMAIL, $subject, $body);
     }
 } catch (\Throwable $e) {
     // Lead-ul e deja salvat pe disc; nu blocam raspunsul.

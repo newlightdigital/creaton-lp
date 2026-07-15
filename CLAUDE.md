@@ -110,12 +110,15 @@ variant (currently ads point to / and /contact/).
       (+ og-creaton.jpg). Drive link in the 2026-07-15 chat if more are needed.
 - [x] Cloudflare Turnstile widget "creaton-lp-forms" created; sitekey in
       config.php; LAZY-loaded on the LP. Secret NOT yet on server.
-- [ ] Turnstile secret (ONLY remaining item): Daniel pastes the secret between
-      the quotes on the `const CREATON_TURNSTILE_SECRET = '';` line in
-      public_html/_app/config.local.php (already uncommented + empty; form works
-      honeypot-only until then). Widget "creaton-lp-forms" is in wp-clients-1 =
-      the daniel@newlightdigital.com CF account. After paste, verify a live submit
-      still 303s (a wrong secret makes siteverify reject -> form err).
+- [x] Turnstile FULLY WORKING 2026-07-15. "wp-clients-1" is a SHARED Turnstile
+      WIDGET (not an account): sitekey 0x4AAAAAAB45dpkzkrOnY6kZ, secret
+      0x4AAAAAAB45dgHQcmlnbEb4YdbyQJW8-xI. Added creaton hostname to it (10/10).
+      config.php sitekey + config.local.php secret both point at it; verified a
+      live submit with a real token lands on /multumim/. Deleted the throwaway
+      "creaton-lp-forms" widget. FIX: form-handler no longer sends remoteip to
+      siteverify (CF edge-IP trap). NOTE: cPanel File Manager "Copy" silently
+      fails to overwrite existing files sometimes; edit the deployed file directly
+      or verify size/mtime after copying.
 - [x] GTM conversion trigger FIXED + PUBLISHED 2026-07-15 (Version 28, container
       GTM-57XHFP55 under the daniel@newlightdigital.com Google login). "Thank you
       page" trigger now fires on Page URL /multumim/; GA4 generate_lead + Google

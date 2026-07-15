@@ -97,6 +97,19 @@ variant (currently ads point to / and /contact/).
 - `public/` maps to `public_html/`. Deploy root has `.htaccess` 301s + security
   headers; `_app/` is `Require all denied` (verified 403). Never edit the server
   by hand except config.local.php (secret) which is not in git.
+- SECURITY HEADERS ARE SET IN TWO PLACES (both must agree): (1) origin
+  `public/.htaccess` `<IfModule mod_headers.c>`, and (2) a Cloudflare Response
+  Header Transform Rule "Security headers" (zone ecc0..., ruleset
+  934c814286354716b2cc2b7d59bd0ef3, rule 18b22e46d00e499dbac22f5581273975, expr
+  `true`) that re-sets them at the edge. 2026-07-15: to enable Yandex Metrica
+  behavioral maps (Click/Scroll/Link/Form), which iframe the live page on
+  metrica.yandex.* / webvisor.com, X-Frame-Options was REMOVED from BOTH places
+  and replaced (in .htaccess) with `Content-Security-Policy: frame-ancestors
+  'self' <yandex+webvisor domains>`. That CSP passes through Cloudflare and is now
+  the only framing control (still blocks all non-Yandex origins). LESSON: removing
+  a header from .htaccess alone is NOT enough - the Cloudflare rule re-adds it;
+  change both. Verify with `curl -skI --resolve ...:85.120.222.229` (origin) vs
+  plain curl (edge).
 - Local preview: LocalWP's bundled PHP via `.claude/launch.json`
   (php -S 127.0.0.1:8737 -t public). PHP is NOT on PATH; binary:
   `~/Library/Application Support/Local/lightning-services/php-8.3.30+1/bin/darwin-arm64/bin/php`

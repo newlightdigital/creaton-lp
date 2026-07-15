@@ -579,12 +579,30 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <a class="btn btn-amber" href="#oferta">Cereți oferta</a>
 </div>
 
-<?php if (CREATON_TURNSTILE_SITEKEY !== '') : ?>
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<?php endif; ?>
 <script>
 (function(){
   "use strict";
+
+  // Lazy-load Cloudflare Turnstile only when the user starts filling a form.
+  // Loading it eagerly pulls ~400KB of challenge JS on first paint and was the
+  // largest-contentful-paint bottleneck on mobile. The widget still solves well
+  // before submit (managed mode passes in ~1s once loaded).
+  var tsWanted = <?= CREATON_TURNSTILE_SITEKEY !== '' ? 'true' : 'false' ?>;
+  if (tsWanted) {
+    var tsLoaded = false;
+    var loadTurnstile = function(){
+      if (tsLoaded) { return; }
+      tsLoaded = true;
+      var s = document.createElement('script');
+      s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+      s.async = true; s.defer = true;
+      document.head.appendChild(s);
+    };
+    document.querySelectorAll('.lead-form').forEach(function(form){
+      form.addEventListener('focusin', loadTurnstile, {once:true});
+      form.addEventListener('submit', loadTurnstile); // safety net for fast fills
+    });
+  }
 
   // Year
   var y=document.getElementById('year'); if(y) y.textContent=new Date().getFullYear();

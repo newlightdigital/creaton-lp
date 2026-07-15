@@ -187,6 +187,22 @@ variant (currently ads point to / and /contact/).
 - [x] Ad group final URLs SWITCHED to variants 2026-07-15 (5 enabled RSAs in the
       live RO Vest campaign, via Ads API; verified). montaj->/montaj-acoperis/,
       reparatii+infiltratii+tabla->/reparatii-acoperis/, refacere->/inlocuire-acoperis/.
+- [x] ADS OPTIMIZED via API 2026-07-15 (campaign 23996113115). Mutations confirmed
+      working (dev token has write access; always validateOnly dry-run first).
+      Added to the RO Vest campaign: 6 sitelinks, 7 callouts, 1 structured snippet
+      (Servicii), 1 call asset (0749 845 759) - it previously had NONE of these
+      (only images/logo/name). Added 21 campaign-level negative keywords (m2, mp,
+      metru/metri patrat, cat costa, calculator, subventii, bloc, amenda, acte,
+      lege, materiale, magazin, vand, naprawy, dachu, diy, pdf, 2025, 2026) to stop
+      the price-per-m2/DIY/material-shopper flood (esp. Montaj ad group, which
+      burned 2600 RON / 0 conv in the pre-launch week). Added a 2nd trust-focused
+      RSA to each of the 5 active ad groups (15 ani, 200+ proiecte, garantie,
+      deviz/deplasare gratuit; NOT the "5,0" rating in ad text - policy risk, the
+      rating lives on the LP). HELD the "pret"/"preturi" negatives on purpose (let
+      the new LPs try to convert price-intent first). KEY 7-day recheck: mobile was
+      89% of spend / 0 conv vs desktop 100% of conv (old mobile LP was the
+      bottleneck; the new mobile-first LPs target exactly this). Analysis + push
+      scripts in the session scratchpad (ads_analysis*.py, push1/push2.py).
 - [x] Email deliverability fixed 2026-07-15 (a lead email hit spam). Root causes:
       DKIM SIGNING was inactive on the server AND no DKIM/DMARC records in DNS.
       Fix: cPanel auto-enabled DKIM signing; published DKIM (default._domainkey)

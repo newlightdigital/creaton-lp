@@ -62,7 +62,6 @@ $lucrari = [
   "name": "Creaton Acoperișuri Mansardări",
   "url": "<?= e(CREATON_BASE_URL) ?>/",
   "telephone": "<?= e(CREATON_PHONE_E164) ?>",
-  "email": "<?= e(CREATON_EMAIL) ?>",
   "areaServed": ["Timișoara", "Cluj-Napoca", "Reșița", "Caransebeș", "România"],
   "sameAs": ["<?= e(CREATON_FB_URL) ?>", "<?= e(CREATON_YT_URL) ?>"]
 }
@@ -422,7 +421,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       </div>
       <div class="area-line">
         <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5972A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg></span>
-        <span><small>Scrieți-ne</small><a href="mailto:office@creaton-acoperisuri-mansardari.ro">office@creaton-acoperisuri-mansardari.ro</a></span>
+        <span><small>Scrieți-ne</small><a href="#oferta">Trimiteți-ne un mesaj</a></span>
       </div>
       <div class="area-line">
         <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5972A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
@@ -546,7 +545,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <div class="footer-col">
           <h4>Contact</h4>
           <a href="tel:+40749845759">0749 845 759</a>
-          <a href="mailto:office@creaton-acoperisuri-mansardari.ro">Trimiteți un email</a>
+          <a href="#oferta">Trimiteți-ne un mesaj</a>
           <a href="https://www.facebook.com/creatonacoperisurimansardari" target="_blank" rel="noopener">Facebook</a>
           <a href="https://www.youtube.com/@CREATON-ACOPERISURI-MANSARDARI" target="_blank" rel="noopener">YouTube</a>
         </div>

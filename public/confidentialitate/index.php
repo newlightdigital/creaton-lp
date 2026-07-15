@@ -51,7 +51,7 @@ require __DIR__ . '/../_app/config.php';
   <p>Ultima actualizare: iulie 2026</p>
 
   <h2>Cine suntem</h2>
-  <p>Acest site este operat de Creaton Acoperișuri Mansardări (denumit în continuare "noi"). Ne puteți contacta la <a href="mailto:<?= e(CREATON_EMAIL) ?>"><?= e(CREATON_EMAIL) ?></a> sau la <?= e(CREATON_PHONE_DISPLAY) ?>.</p>
+  <p>Acest site este operat de Creaton Acoperișuri Mansardări (denumit în continuare "noi"). Ne puteți contacta prin <a href="/#oferta">formularul de contact</a> de pe pagina principală sau telefonic la <?= e(CREATON_PHONE_DISPLAY) ?>.</p>
 
   <h2>Ce date colectăm</h2>
   <ul>
@@ -70,7 +70,7 @@ require __DIR__ . '/../_app/config.php';
   <p>Nu vindem și nu închiriem datele dumneavoastră. Ele pot fi procesate în numele nostru de furnizori de găzduire web și de servicii Google (măsurare publicitară), conform acordurilor de prelucrare ale acestora.</p>
 
   <h2>Drepturile dumneavoastră</h2>
-  <p>Aveți dreptul de acces, rectificare, ștergere, restricționare, portabilitate și opoziție, precum și dreptul de a depune o plângere la <a href="https://www.dataprotection.ro/" target="_blank" rel="noopener">ANSPDCP</a>. Pentru orice cerere, scrieți-ne la <a href="mailto:<?= e(CREATON_EMAIL) ?>"><?= e(CREATON_EMAIL) ?></a>.</p>
+  <p>Aveți dreptul de acces, rectificare, ștergere, restricționare, portabilitate și opoziție, precum și dreptul de a depune o plângere la <a href="https://www.dataprotection.ro/" target="_blank" rel="noopener">ANSPDCP</a>. Pentru orice cerere, folosiți <a href="/#oferta">formularul de contact</a> sau sunați-ne la <?= e(CREATON_PHONE_DISPLAY) ?>.</p>
 </main>
 
 <footer class="footer">

@@ -110,11 +110,16 @@ variant (currently ads point to / and /contact/).
       (+ og-creaton.jpg). Drive link in the 2026-07-15 chat if more are needed.
 - [x] Cloudflare Turnstile widget "creaton-lp-forms" created; sitekey in
       config.php; LAZY-loaded on the LP. Secret NOT yet on server.
-- [ ] Turnstile secret: Daniel to paste `CREATON_TURNSTILE_SECRET` into
-      public_html/_app/config.local.php (server) to enable server-side spam
-      verify (honeypot active until then). File already has a commented slot.
-- [ ] Update the GTM conversion trigger from /thank-you-page/ to /multumim/ (in
-      the GTM UI). Fixes the broken RO Vest conversion tracking (see KNOWN ISSUE).
+- [ ] Turnstile secret (ONLY remaining item): Daniel pastes the secret between
+      the quotes on the `const CREATON_TURNSTILE_SECRET = '';` line in
+      public_html/_app/config.local.php (already uncommented + empty; form works
+      honeypot-only until then). Widget "creaton-lp-forms" is in wp-clients-1 =
+      the daniel@newlightdigital.com CF account. After paste, verify a live submit
+      still 303s (a wrong secret makes siteverify reject -> form err).
+- [x] GTM conversion trigger FIXED + PUBLISHED 2026-07-15 (Version 28, container
+      GTM-57XHFP55 under the daniel@newlightdigital.com Google login). "Thank you
+      page" trigger now fires on Page URL /multumim/; GA4 generate_lead + Google
+      Ads lead conversion restored.
 - [ ] PERF: mobile PageSpeed 69, LCP ~9.6s. Remaining weight = client GTM stack
       (GA4 + Ads + Yandex Metrika, ~540KB). To reach 90+, load GTM on first
       interaction — needs Daniel's OK (changes measurement). gclid captured
@@ -122,7 +127,8 @@ variant (currently ads point to / and /contact/).
 - [x] Legal name: trade name only, per Daniel (no SRL/CUI); it's what
       /confidentialitate/ uses.
 - [x] Ad group variants built from live spend data (see LP variants above).
-- [ ] After Daniel's go: switch each ad group's final URL to its variant (Ads
-      API mutation, needs explicit approval). Ads currently point to / and /contact/.
+- [x] Ad group final URLs SWITCHED to variants 2026-07-15 (5 enabled RSAs in the
+      live RO Vest campaign, via Ads API; verified). montaj->/montaj-acoperis/,
+      reparatii+infiltratii+tabla->/reparatii-acoperis/, refacere->/inlocuire-acoperis/.
 - [ ] After launch: server-side Google Ads conversion uploads playbook, using
       the gclid values from `/home/creatona/leads/*.jsonl`.

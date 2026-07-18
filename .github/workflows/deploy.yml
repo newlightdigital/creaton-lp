@@ -1,0 +1,42 @@
+name: Deploy to cPanel (FTP)
+
+# Auto-deploys the static site to the NAV cPanel account on every push to main
+# that touches public/. The FTP account (daniel@creaton-acoperisuri-mansardari.ro)
+# is jailed to public_html, so the FTP root maps to the web root. Credentials live
+# in the repo's encrypted GitHub Secrets (FTP_SERVER / FTP_USERNAME / FTP_PASSWORD),
+# never in the repo or on the server. config.local.php (the server-only secret) is
+# excluded so it is never overwritten; /leads/ lives outside public_html and is
+# unreachable by this account, so it is never touched.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/**'
+  workflow_dispatch: {}
+
+concurrency:
+  group: ftp-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy public/ -> public_html via FTPS
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          security: loose
+          local-dir: ./public/
+          server-dir: ./
+          exclude: |
+            **/config.local.php
+            **/.git*
+            **/.git*/**
+            **/.DS_Store

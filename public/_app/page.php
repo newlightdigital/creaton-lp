@@ -64,10 +64,13 @@ function creaton_rating_close(): string {
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preload" as="font" type="font/woff2" crossorigin href="/assets/fonts/archivo-var-latin-ext.woff2?v=<?= creaton_asset_ver('assets/fonts/archivo-var-latin-ext.woff2') ?>">
-<link rel="preload" as="font" type="font/woff2" crossorigin href="/assets/fonts/archivo-var-latin.woff2?v=<?= creaton_asset_ver('assets/fonts/archivo-var-latin.woff2') ?>">
-<link rel="preload" as="font" type="font/woff2" crossorigin href="/assets/fonts/inter-var-latin-ext.woff2?v=<?= creaton_asset_ver('assets/fonts/inter-var-latin-ext.woff2') ?>">
-<link rel="preload" as="font" type="font/woff2" crossorigin href="/assets/fonts/inter-var-latin.woff2?v=<?= creaton_asset_ver('assets/fonts/inter-var-latin.woff2') ?>">
+<!-- Preload the EXACT font URLs @font-face requests (no ?v=), so the preload primes
+     the same request instead of a second one. Was double-downloading every font
+     (8 files / ~400KB -> 4 / ~200KB). Fonts are immutable, cached 1yr via .htaccess. -->
+<link rel="preload" as="font" type="font/woff2" crossorigin href="/assets/fonts/archivo-var-latin-ext.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="/assets/fonts/archivo-var-latin.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="/assets/fonts/inter-var-latin-ext.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="/assets/fonts/inter-var-latin.woff2">
 <style>
 <?php readfile(__DIR__ . '/inline.css'); ?>
 </style>

@@ -75,7 +75,19 @@ variant (currently ads point to / and /contact/).
   intact in MySQL.
 - Source of truth: private GitHub repo `newlightdigital/creaton-lp` (main).
   config.local.php is gitignored (secret stays server-side only).
-- DEPLOY MECHANISM (no shell): cPanel Git Version Control. A clone lives at
+- DEPLOY (2026-07-18, PRIMARY + preferred): just `git push` to main. A GitHub
+  Action (`.github/workflows/deploy.yml`) auto-deploys `public/` to `public_html`
+  via FTPS on every push touching `public/` (verified working). FTP account
+  `daniel@creaton-acoperisuri-mansardari.ro` is jailed to public_html; creds in
+  `~/.creaton_ftp.py` (local, chmod 600) and repo GitHub Secrets FTP_SERVER /
+  FTP_USERNAME / FTP_PASSWORD. Excludes config.local.php; `/leads/` sits outside the
+  jail so it is never touched. For an on-demand deploy without git, use Python
+  `ftplib.FTP_TLS` (host cp04.server.ro, port 21, `ssl._create_unverified_context()`,
+  `prot_p()`) or curl `--ssl-reqd`; upload to a `.tmp` name then `rename` for an
+  atomic swap (no half-written 500s). This REPLACED the cPanel File Manager dance
+  below, which is now only an emergency fallback (needs a live cPanel session, which
+  expires and cannot be re-created by the assistant - hence the FTP move).
+- DEPLOY MECHANISM (no shell, LEGACY fallback): cPanel Git Version Control. A clone lives at
   `/home/creatona/repositories/creaton-lp2`. To ship: commit+push, set the
   repo public briefly, in cPanel Git VC "Manage > Pull or Deploy > Update from
   Remote", then File Manager-copy the changed file(s) from

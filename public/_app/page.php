@@ -83,17 +83,38 @@ function creaton_rating_close(): string {
 }
 </script>
 <?php if (CREATON_GTM_ID !== '') : ?>
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','<?= CREATON_GTM_ID ?>');</script>
+<script>
+// GTM/analytics deferred to first interaction (or a 3s fallback) so the ~640KB
+// analytics stack stays off the critical mobile render path (mobile LCP was ~10s).
+// gclid is captured independently below, so ad attribution is unaffected, and
+// /multumim/ loads GTM eagerly so the lead conversion always fires.
+window.dataLayer=window.dataLayer||[];
+(function(w,d,i){
+  var done=false;
+  function load(){
+    if(done){return;} done=true;
+    w.dataLayer.push({'gtm.start':new Date().getTime(),event:'gtm.js'});
+    var f=d.getElementsByTagName('script')[0],j=d.createElement('script');
+    j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i;
+    f.parentNode.insertBefore(j,f);
+  }
+  var EV=['scroll','mousemove','touchstart','keydown','pointerdown'];
+  function fire(){EV.forEach(function(e){w.removeEventListener(e,fire);});load();}
+  EV.forEach(function(e){w.addEventListener(e,fire,{passive:true});});
+  setTimeout(load,3000);
+})(window,document,'<?= CREATON_GTM_ID ?>');
+</script>
 <?php endif; ?>
 </head>
 <body>
 <?php if (CREATON_GTM_ID !== '') : ?>
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=<?= CREATON_GTM_ID ?>" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <?php endif; ?>
+<!-- ClickCease (click-fraud detection): loaded directly, NOT via GTM, so it fires on
+     every pageview even though the GTM stack is deferred for speed. The matching GTM
+     ClickCease tags are paused to avoid a double load. -->
+<script async src="https://ob.esnbranding.com/i/9726c93862c5b4428f5cf40627e028ee.js" class="ct_clicktrue"></script>
+<noscript><a href="https://www.clickcease.com" rel="nofollow"><img src="https://ob.esnbranding.com/ns/9726c93862c5b4428f5cf40627e028ee.html?ch=1" alt="ClickCease"></a></noscript>
 <header class="site-header" id="siteHeader">
   <div class="wrap header-inner">
     <a class="brand" href="#top" aria-label="Creaton Acoperișuri Mansardări">

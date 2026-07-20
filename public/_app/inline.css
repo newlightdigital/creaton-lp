@@ -88,6 +88,8 @@ h1,h2,h3,h4{font-family:'Archivo',system-ui,sans-serif;color:var(--ink);margin:0
 .btn-amber:hover{background:var(--amber-2);transform:translateY(-2px);box-shadow:0 12px 26px var(--amber-glow)}
 .btn-dark{background:var(--graphite);color:#fff}
 .btn-dark:hover{background:var(--graphite-2);transform:translateY(-2px)}
+.btn-wa{background:#25D366;color:#fff}
+.btn-wa:hover{background:#1ebe5d;color:#fff;transform:translateY(-2px)}
 .btn-ghost{background:transparent;border-color:var(--line-2);color:var(--ink)}
 .btn-ghost:hover{border-color:var(--graphite);transform:translateY(-2px)}
 .btn-ghost-light{background:rgba(255,255,255,.06);border-color:var(--white-line);color:#fff}
@@ -311,8 +313,13 @@ a.g-review-summary:hover{box-shadow:var(--shadow-md);border-color:var(--line-2);
 .footer-social a:hover{background:var(--amber)}
 
 /* ---------- Sticky mobile bar ---------- */
-.mobilebar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:120;background:#fff;border-top:1px solid var(--line);box-shadow:0 -6px 24px rgba(16,26,34,.12);padding:10px 12px;gap:10px;grid-template-columns:1fr 1fr}
-.mobilebar .btn{padding:14px 12px;font-size:.94rem}
+.mobilebar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:120;background:#fff;border-top:1px solid var(--line);box-shadow:0 -6px 24px rgba(16,26,34,.12);padding:10px 10px;gap:8px;grid-template-columns:repeat(3,1fr)}
+.mobilebar .btn{padding:12px 5px;font-size:.82rem;gap:5px}
+.mobilebar .btn svg{flex:none}
+/* Floating WhatsApp FAB (desktop/tablet). Hidden on phones, where WhatsApp is in .mobilebar. */
+.wa-fab{position:fixed;right:20px;bottom:20px;z-index:115;display:inline-flex;align-items:center;gap:.55rem;height:56px;padding:0 20px;border-radius:999px;background:#25D366;color:#fff;font-family:'Inter',sans-serif;font-weight:700;font-size:.98rem;box-shadow:0 8px 22px rgba(16,26,34,.26);text-decoration:none;transition:transform .15s ease,box-shadow .15s ease}
+.wa-fab:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(16,26,34,.32);color:#fff}
+.wa-fab svg{flex:none}
 
 /* ---------- Responsive ---------- */
 @media (max-width:1000px){
@@ -339,6 +346,7 @@ a.g-review-summary:hover{box-shadow:var(--shadow-md);border-color:var(--line-2);
   .why-grid{grid-template-columns:1fr}
   .proj-grid{grid-template-columns:1fr 1fr}
   .mobilebar{display:grid}
+  .wa-fab{display:none}
   body{padding-bottom:72px}
   .final-phone a{font-size:1.25rem}
 }

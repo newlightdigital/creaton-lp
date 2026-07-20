@@ -87,11 +87,29 @@ function creaton_rating_close(): string {
 </script>
 <?php if (CREATON_GTM_ID !== '') : ?>
 <script>
-// GTM loaded eagerly (async). It MUST be live before the first tap so the
-// click-based conversions (Click to call, Click WhatsApp, Start Formular) and the
-// Google phone-number swap all fire. Deferring GTM to first interaction (the old
-// speed hack) missed those taps: Jul 19 logged 48 clicks / 0 conversions. Speed is
-// now protected by the font fix + lazy Turnstile, not by starving conversion tracking.
+// Capture tap-based lead actions into the dataLayer the instant they happen, before any
+// navigation, so the conversion survives even while GTM is still loading. GTM fires these
+// via Custom Event triggers (lp_call_click / lp_whatsapp_click / lp_form_start) and, on
+// load, replays whatever is already queued. This is what lets GTM be deferred for speed
+// without losing Click-to-call / Click-WhatsApp / Start-Formular conversions.
+window.dataLayer=window.dataLayer||[];
+(function(w,d){
+  d.addEventListener('click',function(e){
+    var a=e.target.closest?e.target.closest('a'):null; if(!a){return;}
+    var h=a.getAttribute('href')||'';
+    if(h.indexOf('tel:')===0){w.dataLayer.push({event:'lp_call_click'});}
+    else if(h.indexOf('wa.me')>-1||h.indexOf('whatsapp')>-1){w.dataLayer.push({event:'lp_whatsapp_click'});}
+  },true);
+  var started=false;
+  d.addEventListener('focusin',function(e){
+    if(started){return;}
+    var f=e.target.closest?e.target.closest('form.lead-form'):null;
+    if(f){started=true;w.dataLayer.push({event:'lp_form_start'});}
+  },true);
+})(window,document);
+</script>
+<script>
+// GTM (eager async for now; switches to deferred once the Custom Event triggers are live).
 window.dataLayer=window.dataLayer||[];
 (function(w,d,i){
   w.dataLayer.push({'gtm.start':new Date().getTime(),event:'gtm.js'});

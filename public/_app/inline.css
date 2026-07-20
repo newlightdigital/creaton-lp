@@ -19,6 +19,18 @@
   src:url('/assets/fonts/inter-var-latin.woff2') format('woff2');
   unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
+/* Metric-matched fallbacks: a local system font scaled to each web font's exact width and
+   line metrics (computed from the real font metrics vs Arial). Used during the swap window
+   so the hero H1 is not repainted larger when Archivo loads - that repaint was pinning
+   mobile LCP at ~9.6s under GTM bandwidth pressure. No layout shift (CLS stays 0). */
+@font-face{
+  font-family:'Archivo Fallback';src:local('Arial'),local('Roboto'),local('Helvetica Neue');
+  size-adjust:118.44%;ascent-override:74.13%;descent-override:17.73%;line-gap-override:0%;
+}
+@font-face{
+  font-family:'Inter Fallback';src:local('Arial'),local('Roboto'),local('Helvetica Neue');
+  size-adjust:136.91%;ascent-override:70.76%;descent-override:17.62%;line-gap-override:0%;
+}
 
 :root{
   --graphite:#1E2A32;
@@ -50,7 +62,7 @@ html{scroll-behavior:smooth}
 html,body{overflow-x:hidden;overflow-x:clip}
 body{
   margin:0;
-  font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  font-family:'Inter','Inter Fallback',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
   color:var(--ink);
   background:var(--paper);
   line-height:1.65;
@@ -59,7 +71,7 @@ body{
 }
 img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
-h1,h2,h3,h4{font-family:'Archivo',system-ui,sans-serif;color:var(--ink);margin:0;line-height:1.1;letter-spacing:-.02em}
+h1,h2,h3,h4{font-family:'Archivo','Archivo Fallback',system-ui,sans-serif;color:var(--ink);margin:0;line-height:1.1;letter-spacing:-.02em}
 
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
 

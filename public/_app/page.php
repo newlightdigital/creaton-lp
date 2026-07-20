@@ -109,13 +109,26 @@ window.dataLayer=window.dataLayer||[];
 })(window,document);
 </script>
 <script>
-// GTM (eager async for now; switches to deferred once the Custom Event triggers are live).
+// GTM deferred to first interaction (3s fallback) so the ~640KB analytics stack stays off
+// the critical mobile render path (this is the mobile-LCP win). Tap conversions are NOT
+// lost: the dataLayer capture above queues lp_call_click / lp_whatsapp_click / lp_form_start
+// on tap, and GTM's Custom Event triggers replay whatever is queued once it loads. gclid is
+// captured in localStorage independently, and /multumim/ loads GTM eagerly so the lead
+// conversion always fires.
 window.dataLayer=window.dataLayer||[];
 (function(w,d,i){
-  w.dataLayer.push({'gtm.start':new Date().getTime(),event:'gtm.js'});
-  var f=d.getElementsByTagName('script')[0],j=d.createElement('script');
-  j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i;
-  f.parentNode.insertBefore(j,f);
+  var done=false;
+  function load(){
+    if(done){return;} done=true;
+    w.dataLayer.push({'gtm.start':new Date().getTime(),event:'gtm.js'});
+    var f=d.getElementsByTagName('script')[0],j=d.createElement('script');
+    j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i;
+    f.parentNode.insertBefore(j,f);
+  }
+  var EV=['scroll','mousemove','touchstart','keydown','pointerdown'];
+  function fire(){EV.forEach(function(e){w.removeEventListener(e,fire);});load();}
+  EV.forEach(function(e){w.addEventListener(e,fire,{passive:true});});
+  setTimeout(load,3000);
 })(window,document,'<?= CREATON_GTM_ID ?>');
 </script>
 <?php endif; ?>

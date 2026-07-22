@@ -27,6 +27,7 @@ $lucrari = [
     'Reparații și infiltrații',
     'Mansardare',
     'Hidroizolații și terase',
+    'Jgheaburi și burlane',
     'Altă lucrare',
 ];
 

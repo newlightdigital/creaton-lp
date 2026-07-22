@@ -25,8 +25,14 @@ build pipeline, or any framework.
   IMPORTANT: `mail()` is DISABLED on the NAV host. The handler sends via a
   built-in dependency-free SMTP client to Exim on 127.0.0.1:25 (no auth: local
   submission/relay is trusted). office@ delivered locally, BCC to daniel@
-  relayed out. Verified live via Track Delivery (all "Accepted"). Everything in
-  the mail path is wrapped so a failure can never 500 or lose a lead.
+  relayed out. Verified live via Track Delivery (all "Accepted"). The lead email
+  is multipart/alternative (2026-07-22): a plain-text part (simple clients / spam
+  filters) + an on-brand HTML part built by `creaton_lead_email_html()` (graphite
+  + amber like the site, image/SVG-free table layout so Gmail renders it, tel: /
+  wa.me one-tap buttons to the lead's number); both parts base64 so the UTF-8
+  diacritics survive the 7-bit path. `creaton_smtp_send()` takes a Content-Type +
+  Reply-To so the same sender carries either format. Everything in the mail path
+  is wrapped so a failure can never 500 or lose a lead.
 - Turnstile is LAZY-LOADED (injected on first form focus/submit), not eager;
   eager loading made it the LCP element (~400KB challenge JS) and tanked mobile
   PageSpeed. Server-side Turnstile verify is OFF until the secret is added to

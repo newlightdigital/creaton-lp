@@ -31,10 +31,22 @@ build pipeline, or any framework.
   eager loading made it the LCP element (~400KB challenge JS) and tanked mobile
   PageSpeed. Server-side Turnstile verify is OFF until the secret is added to
   config.local.php on the server (honeypot active meanwhile).
-- Conversion flow: GTM (GTM-57XHFP55) fires on the `generate_lead` dataLayer
-  event pushed on `/multumim/`. Click-to-call is tracked in GTM via tel: link
-  click triggers. gclid/gbraid/wbraid are persisted in localStorage for 90 days
-  and submitted with each lead (for future offline conversion uploads).
+- Conversion flow: GTM (GTM-57XHFP55) is LAZY-loaded on the LP (first interaction
+  or a 3s fallback) so the ~640KB analytics stack stays off the critical mobile
+  render path -- this is the mobile-LCP win (eager GTM pinned LCP at ~9.6s; lazy =
+  ~3.3s / score 87). CRITICAL: a deferred GTM misses the very tap that wakes it, so
+  the tap conversions do NOT use GTM auto-event Click triggers. Instead a tiny
+  delegation listener in page.php pushes `lp_call_click` (tel:), `lp_whatsapp_click`
+  (wa.me) and `lp_form_start` (form focus) to the dataLayer the instant they happen;
+  the three GTM triggers "Declanșator Telefon Site / Whatsapp / Start Formular" were
+  switched from Click to Custom Event triggers matching those exact event names
+  (GTM v32, 2026-07-20), and GTM replays the queue when it loads. DO NOT rename these
+  events or revert those triggers to Click -- either one alone silently zeroes call /
+  WhatsApp / form-start conversions (verified live 2026-07-20: click_whatsapp +
+  click_to_call GA4 events and the Google Ads conv 11262294860 pings all fire through
+  the deferred GTM). Form-COMPLETE still fires on `generate_lead` on `/multumim/`,
+  which loads GTM EAGERLY (standalone file), so the lead conversion is never deferred.
+  gclid/gbraid/wbraid persisted in localStorage 90 days, submitted with each lead.
 
 ## LP variants (Google Ads message match)
 
@@ -50,10 +62,16 @@ last-30-days spend):
 - `/reparatii-acoperis/` <- "Reparatii Acoperisuri" (948) + "Infiltratii /
   Acoperis Curge" (35) + "Reparatii Tabla / Tigla" (17)
 - `/inlocuire-acoperis/` <- "Refacere / Renovare / Inlocuire" (883)
-- `/` general <- everything else (brand, paused campaigns if reactivated)
+- `/jgheaburi-burlane/` <- ad group "Jgheaburi / Burlane" (id 199300572675,
+  CREATED 2026-07-22; gutters / sisteme pluviale - see checklist)
+- `/` general <- ad group "General / Firma Acoperisuri" (kw: firma acoperisuri,
+  servicii acoperisuri) + any traffic without a dedicated page
+RO Vest now runs 7 ad groups -> 5 LP targets (the /reparatii-acoperis/ page
+catches 3 repair-intent groups: Reparatii Acoperisuri, Infiltratii, Reparatii
+Tabla / Tigla). All ad-group final URLs verified via API 2026-07-22.
 Google Ads API access works: creds in `~/.nld_ads_creds.py` (adwords scope,
 API v21, login-customer-id = NLD MCC). Read-only queries are fine; MUTATIONS
-(changing ads/final URLs) only with Daniel's explicit go.
+(new ad groups, changing ads/final URLs) only with Daniel's explicit go.
 
 KNOWN ISSUE spotted in the account: the active RO Vest campaign logged only 5
 conversions in 30 days vs 109 on the paused general campaign with similar
@@ -145,6 +163,64 @@ variant (currently ads point to / and /contact/).
       generate_lead fired, email Accepted via Track Delivery, JSONL logged).
 - [x] Real photos: 50 from Drive, best 4 in the Lucrari cards as 800x600 WebP
       (+ og-creaton.jpg). Drive link in the 2026-07-15 chat if more are needed.
+- [x] GUTTERS FUNNEL ADDED 2026-07-22: built the `/jgheaburi-burlane/` LP variant
+      (message match for montaj / reparatii / inlocuire jgheaburi si burlane; also
+      added a "Jgheaburi si burlane" option to the lead-form service dropdown in
+      page.php so the variant preselects it), then on Daniel's explicit go CREATED a
+      new "Jgheaburi / Burlane" ad group (id 199300572675) in the LIVE RO Vest
+      campaign (23996113115) via the Ads API. 13 keywords (phrase + exact: montaj /
+      reparatii / inlocuire jgheaburi, jgheaburi si burlane, montaj burlane, jgheaburi
+      tabla, sistem / sisteme pluviale, + timisoara / cluj) and 2 RSAs, final URL =
+      the new LP, display path /jgheaburi/burlane, ASCII copy (no diacritics) + the
+      "Nu Vindem Materiale" theme to match the other ad groups. Built ATOMICALLY:
+      googleAds:mutate with a temp ad-group resource name (customers/CID/adGroups/-1)
+      referenced by the criteria + ads, so all 16 ops apply in one call; validateOnly
+      dry-run FIRST, then --live (all OK). Fresh ads/keywords land UNDER_REVIEW /
+      strength PENDING at creation (normal Google review latency, not an error). LP
+      shipped via the usual git push -> Action; verified live HTTP 200. Bidding stays
+      MAXIMIZE_CONVERSIONS so the ad group needs no CPC bid; it enters learning like
+      any new one.
+- [x] PRICE-INTENT NEGATIVES ADDED 2026-07-18 (was undocumented): reversed the
+      2026-07-15 decision to HOLD price terms - the new mobile LPs were not converting
+      price-shoppers well enough to justify the spend. Added 6 campaign-level BROAD
+      negatives to RO Vest (23996113115): "pret" and "preturi" (each in plain and
+      diacritic spelling = 4 keywords) plus "pret pe m2" and "cat costa acoperis". RO
+      Vest now carries 27 broad negatives (the 21 from 07-15 + these 6). Verified via
+      campaign_criterion query 2026-07-22.
+- [x] CRITICAL BUG FOUND + FIXED 2026-07-20: form-lead conversions were INVISIBLE in the
+      account because the GTM "Formular Completat - Google Ads" tag fired to the WRONG
+      Google Ads account -- conversion ID AW-11226994680 / label UB4VCNGeN-QeHZbZOeQp (a
+      different account, almost certainly copy-pasted from another container's setup). The
+      account's real id is AW-11262294860 and the correct Formular Completat snippet is
+      AW-11262294860/tR0VCKzoiqgcEMz2o_op. Fixed the tag ID + label, published GTM v33;
+      verified live on /multumim/ (conversion now fires to 11262294860 with the gclid
+      attached via the _gcl_aw cookie the LP Conversion Linker sets). WhatsApp/call/phone-
+      swap were always on the correct 11262294860, so only the FORM channel was affected
+      (low volume: only 2-3 form leads total, ever). Lead EMAILS were never affected (that
+      pipeline is server-side / separate). NOTE: enhanced conversions "Provide new customer
+      data" on this tag is wired to {{DL - Email/First/Last/Phone}} which are EMPTY on
+      /multumim/ (generate_lead push carries none) -- harmless (gclid attribution works) but
+      could be improved later by pushing hashed email/phone on /multumim/. HOW TO GET A
+      CONVERSION'S CORRECT ID+LABEL via Ads API: conversion_action.tag_snippets -> event
+      _snippet send_to = "AW-<id>/<label>"; account id = customer.conversion_tracking
+      _setting.conversion_tracking_id (= 11262294860 for 3218774193).
+- [ ] PAST form-lead recovery (offline conv upload): only Pradan Adrian (Jul 17) has a
+      gclid in /leads/*.jsonl (Speriosu Jul 19 has NONE -> not recoverable). Legacy Ads API
+      ConversionUploadService.UploadClickConversions is BLOCKED for this account
+      (CUSTOMER_NOT_ALLOWLISTED; Google now pushes the Data Manager API for new
+      integrations). Prepared a manual-upload CSV at ~/Downloads/creaton-conversion-
+      recovery.csv (Google Ads > Goals/Tools > Conversions > Uploads). 1 conversion, low
+      value -- Daniel's call whether to bother.
+- [x] BIDDING SWITCHED 2026-07-20: RO Vest campaign (23996113115) MANUAL_CPC -> MAXIMIZE
+      CONVERSIONS (no tCPA; targetCpaMicros=0), at Daniel's explicit direction via API.
+      I advised AGAINST switching now and he overrode it: tracking was fixed the SAME day
+      (so the trailing conversion history the algo learns from is unreliable), primary
+      conversions are only ~8/mo (Smart Bidding wants ~15-30), and the real lead volume
+      (Click-to-call ~97, WhatsApp ~147/mo) is SECONDARY so the algo does NOT optimize
+      toward it. I offered to promote call+WhatsApp to primary for signal -- Daniel declined
+      ("leave primary vs secondary as is"). Expect a rough ~1-2 wk learning period; it now
+      spends the full RON500/day. REVERT if needed: campaigns:mutate manual_cpc {} with
+      updateMask manualCpc (or set a bidding strategy in the UI).
 - [x] Cloudflare Turnstile widget "creaton-lp-forms" created; sitekey in
       config.php; LAZY-loaded on the LP. Secret NOT yet on server.
 - [x] Turnstile FULLY WORKING 2026-07-15. "wp-clients-1" is a SHARED Turnstile
@@ -189,10 +265,28 @@ variant (currently ads point to / and /contact/).
       dashboard only, no API access): in the ClickCease dashboard confirm the domain
       shows detected/green and connect the Google Ads account (3218774193) so the
       fraud IP-exclusions actually push to the campaigns.
-- [ ] PERF: mobile PageSpeed 69, LCP ~9.6s. Remaining weight = client GTM stack
-      (GA4 + Ads + Yandex Metrika, ~540KB). To reach 90+, load GTM on first
-      interaction — needs Daniel's OK (changes measurement). gclid captured
-      independently in localStorage, so deferring GTM does not hurt attribution.
+- [x] PERF DONE 2026-07-20: mobile LCP 9.2s -> 3.3s, PageSpeed 87 (was ~69), CLS 0,
+      FCP 1.0s. Fix = LAZY-load GTM (first interaction / 3s fallback) to get the
+      ~640KB analytics stack off the critical path, WITHOUT losing tap conversions:
+      page.php queues lp_call_click / lp_whatsapp_click / lp_form_start in the
+      dataLayer on tap, and the matching GTM Custom Event triggers (v32) replay them
+      when GTM loads (see Conversion flow above; verified live). Also added
+      metric-matched font fallbacks (`Archivo Fallback` / `Inter Fallback` in
+      inline.css, size-adjust + ascent/descent overrides from the real font metrics)
+      so the web-font swap never repaints larger or shifts layout. A prior naive
+      "defer GTM" attempt (Jul 18, no dataLayer queue) silently zeroed call/WhatsApp/
+      form-start conversions (Jul 19: 48 clicks / 0 conv) - that is why the queue +
+      Custom Event triggers are mandatory, not optional.
+- [x] WHATSAPP LEAD CHANNEL RESTORED 2026-07-20: the WP->static rebuild (Jul 15)
+      dropped the site's WhatsApp button, which was the top lead action on the old
+      site (~147 "Click WhatsApp" conv / 30d, ~5-6/day -> 0 after relaunch). Re-added
+      a floating wa.me FAB (desktop/tablet, `.wa-fab`) + a 3rd button in the sticky
+      mobile bar (`.btn-wa`), both to wa.me/40749845759 (0749 845 759, Daniel
+      confirmed it is the WhatsApp number) with a formal prefilled message. NOTE for
+      lead-count sanity: Click-to-call (~97/30d) + Click-WhatsApp (~147/30d) are
+      SECONDARY conversions, so they never show in the Ads "Conversions" column
+      (which counts only Formular Completat + calls). The real contact volume is
+      ~8/day, not the "6" that column shows. Campaign bid strategy = MANUAL_CPC.
 - [x] Legal name: trade name only, per Daniel (no SRL/CUI); it's what
       /confidentialitate/ uses.
 - [x] Ad group variants built from live spend data (see LP variants above).

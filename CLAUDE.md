@@ -206,10 +206,18 @@ variant (currently ads point to / and /contact/).
       "Politica de confidențialitate și de cookie-uri". Verified live: defaults
       denied -> stored choice re-applied -> gtm.js, in that order, on all 5 LP
       variants + /multumim/; consent-log.php returns 405 on GET (POST only).
-      DEPLOY GOTCHA: this push did NOT auto-trigger the Action (no run was created
-      even though it touched public/**). Fixed with `gh workflow run deploy.yml
-      --ref main` (the workflow has workflow_dispatch enabled). Check that a run
-      actually exists after pushing; do not assume the push deployed.
+      DEPLOY NOTE (GitHub Actions lag, 2026-07-23): the push DID auto-deploy, the
+      trigger and `paths: public/**` filter are fine. GitHub was just backlogged
+      that day, in two ways that look like a broken deploy: (1) the run was not
+      CREATED until ~16 min after the push (normally seconds), and (2) the
+      RUN-level status kept reporting `in_progress` for ~15 min after the job had
+      already finished. Job-level was success in 8-11s both times. So: check
+      JOB-level state, not run-level, before concluding anything:
+      `gh api repos/newlightdigital/creaton-lp/actions/runs/<id>/jobs -q
+      '.jobs[] | .conclusion'` (or just curl the live URL). Do not panic-dispatch
+      on a missing run; give it time. A redundant `gh workflow run deploy.yml
+      --ref main` is harmless if you do (the FTPS sync is idempotent), which is
+      what happened here: the commit shipped twice, identically.
 - [x] GUTTERS FUNNEL ADDED 2026-07-22: built the `/jgheaburi-burlane/` LP variant
       (message match for montaj / reparatii / inlocuire jgheaburi si burlane; also
       added a "Jgheaburi si burlane" option to the lead-form service dropdown in

@@ -70,9 +70,15 @@ build pipeline, or any framework.
   everyone after a material change. NOTE: ad_storage is denied until the visitor
   accepts, so Ads/GA4 see fewer cookie-based conversions than before (modeling
   fills part of the gap) - expected, and it lands mid Maximize-Conversions
-  learning. KNOWN GAP: the gclid/gbraid localStorage capture in page.php still
-  runs before consent; it is first-party and only used for lead attribution, but
-  gate it behind the marketing category if we ever want to be strict.
+  learning. DELIBERATE, do NOT "fix" without asking (Daniel, 2026-07-23): the
+  NON-Google tags stay UNGATED. Consent Mode only gates the Google tags
+  automatically; Yandex Metrica (Custom HTML in GTM) and ClickCease (loaded
+  directly in page.php, ahead of consent) were both left firing regardless of
+  consent, on Daniel's explicit call after I offered to add per-tag consent
+  checks. consent.js still clears the `_ym_*` cookies when analytics is refused.
+  Same for the gclid/gbraid localStorage capture in page.php, which still runs
+  before consent: it is first-party and only feeds lead attribution, so it stays
+  as is unless we decide to be strict.
 
 ## LP variants (Google Ads message match)
 

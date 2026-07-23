@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /multumim/
 Disallow: /form-handler.php
+Disallow: /consent-log.php

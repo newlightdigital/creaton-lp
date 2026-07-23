@@ -52,6 +52,7 @@ function creaton_rating_close(): string {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<?php require __DIR__ . '/consent.php'; ?>
 <title><?= e($page['title']) ?></title>
 <meta name="description" content="<?= e($page['description']) ?>">
 <link rel="canonical" href="<?= e($canonical) ?>">
@@ -642,6 +643,7 @@ window.dataLayer=window.dataLayer||[];
           <a href="https://www.dataprotection.ro/" target="_blank" rel="noopener">GDPR</a>
           <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener">Platforma SOL</a>
           <a href="/confidentialitate/">Politica de confidențialitate</a>
+          <a href="#" data-creaton-cookies>Preferințe cookie-uri</a>
         </div>
       </div>
     </div>

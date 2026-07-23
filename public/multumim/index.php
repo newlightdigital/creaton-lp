@@ -14,6 +14,7 @@ header('X-Robots-Tag: noindex, nofollow');
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<?php require __DIR__ . '/../_app/consent.php'; ?>
 <title>Vă mulțumim! | Creaton Acoperișuri Mansardări</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">

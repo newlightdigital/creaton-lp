@@ -53,6 +53,26 @@ build pipeline, or any framework.
   the deferred GTM). Form-COMPLETE still fires on `generate_lead` on `/multumim/`,
   which loads GTM EAGERLY (standalone file), so the lead conversion is never deferred.
   gclid/gbraid/wbraid persisted in localStorage 90 days, submitted with each lead.
+- CONSENT (2026-07-23): self-hosted Consent Mode v2 CMP, ported from acoperix.ro
+  (same code, restyled to the graphite + amber tokens). Three pieces:
+  `_app/consent.php` (the gtag consent DEFAULTS, everything denied except
+  security_storage, + wait_for_update 500 + url_passthrough; also re-applies a
+  stored choice inline on later pageviews), `assets/js/consent.js` (banner +
+  preferences panel, 4 categories with strictly-necessary locked, writes the
+  `creaton_consent` cookie for 12 months, clears GA/Ads/Yandex cookies on
+  withdrawal; API `window.creatonCookies.show()/.showPrefs()/.state()`), and
+  `consent-log.php` (proof of consent per GDPR art. 7(1), appended to
+  `/home/creatona/creaton-consent.log`, OUTSIDE the webroot, truncated IP).
+  consent.php is required as the FIRST thing in <head> on page.php, /multumim/
+  and /confidentialitate/. RULE: it must stay ahead of every GTM loader, or tags
+  fire ungated. Any `[data-creaton-cookies]` link reopens the panel (there is one
+  in the LP footer and in the policy). Bump VERSION in consent.js to re-ask
+  everyone after a material change. NOTE: ad_storage is denied until the visitor
+  accepts, so Ads/GA4 see fewer cookie-based conversions than before (modeling
+  fills part of the gap) - expected, and it lands mid Maximize-Conversions
+  learning. KNOWN GAP: the gclid/gbraid localStorage capture in page.php still
+  runs before consent; it is first-party and only used for lead attribution, but
+  gate it behind the marketing category if we ever want to be strict.
 
 ## LP variants (Google Ads message match)
 
@@ -169,6 +189,21 @@ variant (currently ads point to / and /contact/).
       generate_lead fired, email Accepted via Track Delivery, JSONL logged).
 - [x] Real photos: 50 from Drive, best 4 in the Lucrari cards as 800x600 WebP
       (+ og-creaton.jpg). Drive link in the 2026-07-15 chat if more are needed.
+- [x] COOKIE CONSENT LIVE 2026-07-23: ported the acoperix.ro CMP (Consent Mode v2,
+      deny by default) to every page - see the Stack bullet for the file layout and
+      the ordering rule. Also aligned `/confidentialitate/`: the legal basis for
+      traffic/campaign measurement moved from legitimate interest (art. 6(1)(f)) to
+      CONSENT (art. 6(1)(a), given via the banner), plus a new "Cookie-uri și
+      tehnologii similare" section listing the 4 categories and the concrete cookies
+      (creaton_consent, _ga/_ga_*, _gcl_au/_gcl_aw, _ym_*), a "Modificați
+      preferințele" link and the withdraw-consent right. Page title is now
+      "Politica de confidențialitate și de cookie-uri". Verified live: defaults
+      denied -> stored choice re-applied -> gtm.js, in that order, on all 5 LP
+      variants + /multumim/; consent-log.php returns 405 on GET (POST only).
+      DEPLOY GOTCHA: this push did NOT auto-trigger the Action (no run was created
+      even though it touched public/**). Fixed with `gh workflow run deploy.yml
+      --ref main` (the workflow has workflow_dispatch enabled). Check that a run
+      actually exists after pushing; do not assume the push deployed.
 - [x] GUTTERS FUNNEL ADDED 2026-07-22: built the `/jgheaburi-burlane/` LP variant
       (message match for montaj / reparatii / inlocuire jgheaburi si burlane; also
       added a "Jgheaburi si burlane" option to the lead-form service dropdown in
